@@ -39,7 +39,7 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+      <div className=" bg-[#F3F4F6] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#1A365D] border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -47,14 +47,14 @@ export default function Profile() {
 
   if (isError || !profil || !user) {
     return (
-      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+      <div className=" bg-[#F3F4F6] flex items-center justify-center">
         <p className="text-red-500">Impossible de charger le profil.</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] py-8 px-4">
+    <div className=" bg-[#F3F4F6] py-8 px-4">
       <div className="max-w-md mx-auto space-y-4">
         <h1 className="text-2xl font-bold text-[#1A365D]">Mon profil</h1>
 

@@ -3,7 +3,7 @@
 export default function Footer() {
   return (
     <div>
-        <p>Co-voit - Greta 2026 </p>
+        <p className=" text-center">Co-voit - Greta 2026 </p>
     </div>
     
   )

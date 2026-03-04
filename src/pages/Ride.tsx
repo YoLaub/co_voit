@@ -27,7 +27,7 @@ export default function Ride() {
   })
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] py-8 px-4">
+    <div className=" bg-[#F3F4F6] py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* En-tête */}
         <div className="flex items-center justify-between mb-6">

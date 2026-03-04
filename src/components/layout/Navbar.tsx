@@ -54,7 +54,7 @@ export default function Navbar() {
           }
         />
         <NavItem
-          to="/publish"
+          to="/create-trip"
           label="Publier"
           icon={
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
