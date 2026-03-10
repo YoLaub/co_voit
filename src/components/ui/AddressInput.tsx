@@ -61,13 +61,13 @@ export default function AddressInput({
       </div>
 
       {suggestions.length > 0 && (
-        <ul className="absolute z-10 mt-1 w-full bg-[#F3F4F6] border border-gray-200 rounded-lg shadow-md overflow-hidden">
+        <ul className="absolute z-10 mt-1 w-full border bg-white border-gray-200 rounded-lg shadow-md overflow-hidden">
           {suggestions.map((s, i) => (
             <li key={i}>
               <button
                 type="button"
                 onMouseDown={() => handleSelect(s)}
-                className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-200 transition-colors"
+                className="w-full text-left px-4 py-2.5 text-sm transition-colors"
               >
                 {s.label}
               </button>
