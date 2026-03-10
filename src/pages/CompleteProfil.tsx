@@ -41,7 +41,7 @@ export default function CompleteProfil() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className=" flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-[#1A365D] mb-2 text-center">
           Compléter votre profil

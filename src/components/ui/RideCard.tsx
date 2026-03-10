@@ -21,11 +21,11 @@ export default function RideCard({ ride }: RideCardProps) {
       {/* Trajet */}
       <div className="flex items-center gap-2 mb-3">
         <span className="font-semibold text-[#1A365D]">
-          {ride.startingAddress.cityName}
+          {ride.startingAddress?.cityName ?? '—'}
         </span>
         <span className="text-gray-400">→</span>
         <span className="font-semibold text-[#1A365D]">
-          {ride.arrivalAddress.cityName}
+          {ride.arrivalAddress?.cityName ?? '—'}
         </span>
         <span className="ml-auto text-xs text-gray-400">{ride.kms} km</span>
       </div>

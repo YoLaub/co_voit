@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { getBrands, createCar, updateCar } from '../api/carsApi'
+import { getBrands, getModelsByBrand, createCar, updateCar } from '../api/carsApi'
 import type { VehicleResponse } from '../api/carsApi'
 
 const REGISTRATION_REGEX = /^[A-Z]{2}-\d{3}-[A-Z]{2}$/
@@ -14,6 +14,7 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
   const navigate = useNavigate()
   const isEdit = !!vehicle
 
+  const [brandId, setBrandId] = useState<number | null>(null)
   const [brand, setBrand] = useState(vehicle?.brand ?? '')
   const [model, setModel] = useState(vehicle?.model ?? '')
   const [seats, setSeats] = useState(vehicle?.seats ?? 1)
@@ -24,6 +25,20 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
   const { data: brands, isLoading: brandsLoading } = useQuery({
     queryKey: ['brands'],
     queryFn: getBrands,
+  })
+
+  // En mode édition, pré-sélectionner le brandId quand les marques sont chargées
+  useEffect(() => {
+    if (vehicle && brands && !brandId) {
+      const match = brands.find((b) => b.label === vehicle.brand)
+      if (match) setBrandId(match.id)
+    }
+  }, [vehicle, brands, brandId])
+
+  const { data: models, isLoading: modelsLoading } = useQuery({
+    queryKey: ['models', brandId],
+    queryFn: () => getModelsByBrand(brandId!),
+    enabled: !!brandId,
   })
 
   const mutation = useMutation({
@@ -59,14 +74,19 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
         <select
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
+          value={brandId ?? ''}
+          onChange={(e) => {
+            const selected = brands?.find((b) => b.id === Number(e.target.value))
+            setBrandId(selected?.id ?? null)
+            setBrand(selected?.label ?? '')
+            setModel('')
+          }}
           disabled={brandsLoading}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D] disabled:bg-gray-100"
         >
           <option value="">— Sélectionner —</option>
           {brands?.map((b) => (
-            <option key={b.id} value={b.label}>{b.label}</option>
+            <option key={b.id} value={b.id}>{b.label}</option>
           ))}
         </select>
       </div>
@@ -74,13 +94,17 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
       {/* Modèle */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Modèle</label>
-        <input
-          type="text"
+        <select
           value={model}
           onChange={(e) => setModel(e.target.value)}
-          placeholder="Clio, 208, Golf..."
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D]"
-        />
+          disabled={!brandId || modelsLoading}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D] disabled:bg-gray-100"
+        >
+          <option value="">{!brandId ? 'Choisissez d\'abord une marque' : '— Sélectionner —'}</option>
+          {models?.map((m) => (
+            <option key={m.id} value={m.label}>{m.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Places */}

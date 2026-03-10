@@ -61,7 +61,7 @@ export default function Vehicle() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+      <div className=" bg-[#F3F4F6] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#1A365D] border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -70,7 +70,7 @@ export default function Vehicle() {
   const hasVehicle = !isError && !!vehicle
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] py-8 px-4">
+    <div className=" bg-[#F3F4F6] py-8 px-4">
       <div className="max-w-md mx-auto">
         <h1 className="text-2xl font-bold text-[#1A365D] mb-6">Mon véhicule</h1>
 

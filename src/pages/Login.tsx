@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login as loginApi } from '../api/authApi'
+import { getMyProfil } from '../api/profilApi'
 import { useAuthStore } from '../store/authStore'
+import logo from "../assets/images/logo/logo.webp";
 
 export default function Login() {
+  
   const navigate = useNavigate()
   const login = useAuthStore((s) => s.login)
 
@@ -31,9 +34,27 @@ export default function Login() {
         accountId: data.accountId,
         email: data.email,
         role: data.role,
-        hasCompletedProfile: data.hasCompletedProfile,
+        hasCompletedProfile: false,
       })
-      navigate(data.hasCompletedProfile ? '/' : '/complete-profil')
+
+      let profileComplete = false
+      try {
+        await getMyProfil()
+        profileComplete = true
+      } catch {
+        profileComplete = false
+      }
+
+      if (profileComplete) {
+        login(data.token, {
+          accountId: data.accountId,
+          email: data.email,
+          role: data.role,
+          hasCompletedProfile: true,
+        })
+      }
+
+      navigate(profileComplete ? '/' : '/complete-profil')
     } catch (err: unknown) {
       const status = (err as { response?: { status: number } })?.response?.status
       if (status === 400 || status === 401) {
@@ -47,9 +68,15 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+
+     <div className='flex flex-col mx-auto items-center'>
+      <h1 className="text-2xl font-bold text-[#1A365D] mb-6 text-center">Co-VOIT</h1>
+  
+        <img src={logo} alt="Co-Voit Logo" className="h-30 w-30 scale-300 opacity-80 mt-10" />
+      
+    <div className=" bg-[#F3F4F6] flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-[#1A365D] mb-6 text-center">Connexion</h1>
+        <h2 className="text-3xl font-bold text-[#1A365D] mb-6 text-center">Connexion</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -87,6 +114,8 @@ export default function Login() {
           </Link>
         </p>
       </div>
+    </div>
+
     </div>
   )
 }

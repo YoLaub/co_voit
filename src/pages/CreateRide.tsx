@@ -89,7 +89,7 @@ export default function CreateRide() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] py-10 px-4">
+    <div className=" bg-[#F3F4F6] py-10 px-4">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-8">
         <h1 className="text-2xl font-bold text-[#1A365D] mb-8 text-center">
           Publier un trajet
