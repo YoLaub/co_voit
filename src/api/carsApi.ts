@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://covoit-api.john-world.store'
 
 function authHeaders() {
   const token = useAuthStore.getState().token
@@ -9,6 +9,11 @@ function authHeaders() {
 }
 
 export interface Brand {
+  id: number
+  label: string
+}
+
+export interface Model {
   id: number
   label: string
 }
@@ -30,6 +35,13 @@ export interface CarPayload {
 
 export async function getBrands(): Promise<Brand[]> {
   const { data } = await axios.get<Brand[]>(`${API_URL}/api/brands`, {
+    headers: authHeaders(),
+  })
+  return data
+}
+
+export async function getModelsByBrand(brandId: number): Promise<Model[]> {
+  const { data } = await axios.get<Model[]>(`${API_URL}/api/models/brand/${brandId}`, {
     headers: authHeaders(),
   })
   return data

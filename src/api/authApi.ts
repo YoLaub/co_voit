@@ -1,13 +1,12 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://covoit-api.john-world.store'
 
 export interface LoginResponse {
   token: string
   accountId: number
   email: string
   role: string
-  hasCompletedProfile: boolean
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {

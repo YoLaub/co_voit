@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
 import type { RouteResponse } from './tripsApi'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://covoit-api.john-world.store'
 
 function authHeaders() {
   const token = useAuthStore.getState().token
