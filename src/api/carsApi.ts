@@ -20,15 +20,15 @@ export interface Model {
 
 export interface VehicleResponse {
   id: number
-  brand: string
-  model: string
+  brandName: string
+  modelName: string
   seats: number
   carregistration: string
+  additionalInfo: string | null
 }
 
 export interface CarPayload {
-  brand: string
-  model: string
+  modelId: number
   seats: number
   carregistration: string
 }
@@ -66,7 +66,7 @@ export async function updateCar(id: number, payload: CarPayload): Promise<Vehicl
     headers: authHeaders(),
   })
   return data
-}
+} 
 
 export async function deleteCar(id: number): Promise<void> {
   await axios.delete(`${API_URL}/api/cars/${id}`, { headers: authHeaders() })

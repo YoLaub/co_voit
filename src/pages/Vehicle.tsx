@@ -87,7 +87,7 @@ export default function Vehicle() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-3">
             <div className="flex justify-between items-start mb-2">
               <h2 className="text-lg font-bold text-[#1A365D]">
-                {vehicle.brand} {vehicle.model}
+                {vehicle.brandName} {vehicle.modelName}
               </h2>
               <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded">
                 {vehicle.carregistration}
