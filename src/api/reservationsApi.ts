@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
-import type { RouteResponse } from './tripsApi'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'https://covoit-api.john-world.store'
 
@@ -10,11 +9,13 @@ function authHeaders() {
 }
 
 export interface ReservationResponse {
-  id: number
-  route: RouteResponse
+  routeId: number
   status: 'pending' | 'confirmed' | 'cancelled'
-  roleInRoute: 'driver' | 'passenger'
   createdAt: string
+  departureCity: string
+  arrivalCity: string
+  tripDate: string
+  driverName: string
 }
 
 export interface PassengerResponse {

@@ -8,7 +8,7 @@ interface RideCardProps {
 export default function RideCard({ ride }: RideCardProps) {
   const navigate = useNavigate()
 
-  const dt = new Date(ride.tripDatetime)
+  const dt = new Date(`${ride.date}T${ride.hour}`)
   const date = dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
   const time = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
@@ -21,11 +21,11 @@ export default function RideCard({ ride }: RideCardProps) {
       {/* Trajet */}
       <div className="flex items-center gap-2 mb-3">
         <span className="font-semibold text-[#1A365D]">
-          {ride.startingAddress?.cityName ?? '—'}
+          {`${ride.departure?.streetName}, ${ride.departure?.cityName}`}
         </span>
         <span className="text-gray-400">→</span>
         <span className="font-semibold text-[#1A365D]">
-          {ride.arrivalAddress?.cityName ?? '—'}
+          {`${ride.arrival?.streetName}, ${ride.arrival?.cityName}`}
         </span>
         <span className="ml-auto text-xs text-gray-400">{ride.kms} km</span>
       </div>

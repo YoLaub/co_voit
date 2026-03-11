@@ -12,7 +12,7 @@ export interface AddressRequest {
   streetNumber?: string
   streetName: string
   postalCode: string
-  cityName: string
+  city: string          // ← cityName → city
   latitude: number
   longitude: number
 }
@@ -22,7 +22,7 @@ export function toAddressRequest(suggestion: AddressSuggestion): AddressRequest 
     streetNumber: suggestion.housenumber || undefined,
     streetName: suggestion.street || suggestion.label,
     postalCode: suggestion.postcode,
-    cityName: suggestion.city,
+    city: suggestion.city,    // ← cityName → city
     latitude: suggestion.latitude,
     longitude: suggestion.longitude,
   }

@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getTripById } from '../api/tripsApi'
-import { reserveTrip } from '../api/reservationsApi'
+import { reserveTrip, getTripPassengers  } from '../api/reservationsApi'
 import { useAuthStore } from '../store/authStore'
 
 interface FieldProps {
@@ -30,12 +30,19 @@ export default function RideDetails() {
     enabled: !!id,
   })
 
-  const mutation = useMutation({
+  const { data: passengers } = useQuery({
+    queryKey: ['trip-passengers', id],
+    queryFn: () => getTripPassengers(Number(id)),
+    enabled: !!id,
+})
+
+const mutation = useMutation({
     mutationFn: () => reserveTrip(Number(id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trip', id] })
+      queryClient.invalidateQueries({ queryKey: ['trip-passengers', id] })
     },
-  })
+})
 
   if (isLoading) {
     return (
@@ -53,17 +60,19 @@ export default function RideDetails() {
     )
   }
 
-  const dt = new Date(trip.tripDatetime)
+  const dt = new Date(`${trip.date}T${trip.hour}`)
   const date = dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
   const time = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
   const isDriver = user?.email === trip.driver.email
+  const isPassenger = passengers?.some((p) => p.email === user?.email) ?? false
   const noSeats = trip.availableSeats === 0
-  const canReserve = !isDriver && !noSeats && !mutation.isSuccess
+  const canReserve = !isDriver && !isPassenger && !noSeats && !mutation.isSuccess
+  const canContact = !isDriver && !noSeats && !mutation.isSuccess
 
   const errorMessage = mutation.isError
     ? ((mutation.error as { response?: { data?: { message?: string } } })?.response?.data?.message
-        ?? 'Erreur lors de la réservation, réessayez')
+      ?? 'Erreur lors de la réservation, réessayez')
     : ''
 
   return (
@@ -87,8 +96,8 @@ export default function RideDetails() {
         {/* Champs */}
         <div className="space-y-2 mb-6">
           <Field label="Conducteur" value={`${trip.driver.firstname} ${trip.driver.lastname}`} />
-          <Field label="Départ" value={`${trip.startingAddress.streetName}, ${trip.startingAddress.cityName}`} />
-          <Field label="Arrivée" value={`${trip.arrivalAddress.streetName}, ${trip.arrivalAddress.cityName}`} />
+          <Field label="Départ" value={`${trip.departure.streetName}, ${trip.departure.cityName}`} />
+          <Field label="Arrivée" value={`${trip.arrival.streetName}, ${trip.arrival.cityName}`} />
           <Field label="Date" value={date} />
           <Field label="Heure" value={time} />
           <Field label="Nombre de kilomètres" value={`${trip.kms} km`} />
@@ -115,14 +124,28 @@ export default function RideDetails() {
         <div className="flex gap-3">
           <a
             href={`tel:${trip.driver.phone}`}
-            className="flex-1 bg-[#1A365D] text-white font-semibold py-3 rounded-xl text-center hover:bg-[#162d52] transition-colors"
+            hidden={!canContact || mutation.isPending}
+            className="w-12 h-12 bg-[#1A365D] text-white rounded-xl flex items-center justify-center hover:bg-[#162d52] transition-colors shrink-0"
+            aria-label="Appeler"
           >
-            Contacter
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </a>
+          <a
+            href={`mailto:${trip.driver.email}`}
+            hidden={!canContact || mutation.isPending}
+            className="w-12 h-12 bg-[#1A365D] text-white rounded-xl flex items-center justify-center hover:bg-[#162d52] transition-colors shrink-0"
+            aria-label="Envoyer un email"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
           </a>
           <button
             type="button"
             onClick={() => mutation.mutate()}
-            disabled={!canReserve || mutation.isPending}
+            hidden={!canReserve || mutation.isPending}
             className="flex-1 bg-[#E97A2B] text-white font-semibold py-3 rounded-xl hover:bg-[#d06b22] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {mutation.isPending ? '...' : mutation.isSuccess ? 'Réservé' : 'Réserver'}

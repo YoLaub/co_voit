@@ -14,9 +14,10 @@ export interface LocationResponse {
 
 export interface RouteResponse {
   id: number
-  startingAddress: LocationResponse
-  arrivalAddress: LocationResponse
-  tripDatetime: string
+  departure: LocationResponse
+  arrival: LocationResponse
+  date: string
+  hour: string
   kms: number
   availableSeats: number
   driverName: string
@@ -33,13 +34,32 @@ function authHeaders() {
 export interface CreateTripRequest {
   kms: number
   availableSeats: number
-  tripDatetime: string
+  tripDatetime: string // on garde ça côté front pour simplicité
   startingAddress: AddressRequest
   arrivalAddress: AddressRequest
+  iconId?: number
 }
 
 export async function createTrip(data: CreateTripRequest): Promise<void> {
-  await axios.post(`${API_URL}/api/trips`, data, { headers: authHeaders() })
+  const dt = new Date(data.tripDatetime)
+  const tripDate = dt.toISOString().split('T')[0] // "2026-03-12"
+  const tripHour = dt.toTimeString().slice(0, 5)   // "17:00"
+
+  await axios.post(`${API_URL}/api/trips`, {
+    kms: data.kms,
+    availableSeats: data.availableSeats,
+    tripDate,
+    tripHour,
+    iconId: data.iconId ?? 1,
+    startingAddress: {
+      ...data.startingAddress,
+      city: data.startingAddress.city, // rename cityName → city
+    },
+    arrivalAddress: {
+      ...data.arrivalAddress,
+      city: data.arrivalAddress.city, // rename cityName → city
+    },
+  }, { headers: authHeaders() })
 }
 
 export async function getAllTrips(): Promise<RouteResponse[]> {
@@ -59,20 +79,29 @@ export interface PersonResponse {
 
 export interface RouteDetailResponse {
   id: number
-  startingAddress: LocationResponse
-  arrivalAddress: LocationResponse
-  tripDatetime: string
+  departure: LocationResponse
+  arrival: LocationResponse
+  date: string
+  hour: string
   kms: number
   availableSeats: number
-  driver: PersonResponse
-  passengers: PersonResponse[]
+  driverName: string
+  iconLabel: string
+  driver: {
+    profilId: number
+    firstname: string
+    lastname: string
+    phone: string
+    email: string
+  }
   vehicle: {
     id: number
     brand: string
     model: string
     seats: number
     carregistration: string
-  }
+  } | null
+  passengers?: PersonResponse[]
 }
 
 export interface SearchParams {
@@ -92,9 +121,9 @@ export async function reserveTrip(id: number): Promise<void> {
   await axios.post(`${API_URL}/api/trips/${id}/person`, null, { headers: authHeaders() })
 }
 
-export async function getMyTrips(personId: number): Promise<RouteResponse[]> {
+export async function getMyTrips(): Promise<RouteResponse[]> {
   const { data } = await axios.get<RouteResponse[]>(
-    `${API_URL}/api/persons/${personId}/trips-driver`,
+    `${API_URL}/api/persons/me/trips-driver`,
     { headers: authHeaders() },
   )
   return data
@@ -106,9 +135,9 @@ export async function deleteTrip(id: number): Promise<void> {
 
 export async function searchTrips(params: SearchParams): Promise<RouteResponse[]> {
   const query = new URLSearchParams()
-  if (params.startingCity) query.set('startingCity', params.startingCity)
-  if (params.arrivalCity) query.set('arrivalCity', params.arrivalCity)
-  if (params.tripDate) query.set('tripDate', params.tripDate)
+  if (params.startingCity) query.set('startingcity', params.startingCity)
+  if (params.arrivalCity) query.set('arrivalcity', params.arrivalCity)
+  if (params.tripDate) query.set('tripdate', params.tripDate)
   const { data } = await axios.get<RouteResponse[]>(`${API_URL}/api/trips?${query}`, {
     headers: authHeaders(),
   })

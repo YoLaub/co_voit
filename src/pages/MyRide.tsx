@@ -7,7 +7,7 @@ import type { RouteResponse } from '../api/tripsApi'
 function RideRow({ ride, onDelete }: { ride: RouteResponse; onDelete: (id: number) => void }) {
   const navigate = useNavigate()
 
-  const dt = new Date(ride.tripDatetime)
+  const dt = new Date(`${ride.date}T${ride.hour}`)
   const date = dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
   const time = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
@@ -20,9 +20,9 @@ function RideRow({ ride, onDelete }: { ride: RouteResponse; onDelete: (id: numbe
         className="flex-1 text-left"
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-[#1A365D]">{ride.startingAddress.cityName}</span>
+          <span className="font-semibold text-[#1A365D]">{ride.departure.cityName}</span>
           <span className="text-gray-400 text-sm">→</span>
-          <span className="font-semibold text-[#1A365D]">{ride.arrivalAddress.cityName}</span>
+          <span className="font-semibold text-[#1A365D]">{ride.arrival.cityName}</span>
         </div>
         <div className="flex items-center gap-3 text-sm text-gray-500">
           <span>{date}</span>
@@ -57,11 +57,11 @@ export default function MyRide() {
   const user = useAuthStore((s) => s.user)
   const queryClient = useQueryClient()
 
-  const { data: trips, isLoading, isError } = useQuery({
-    queryKey: ['my-trips', user?.accountId],
-    queryFn: () => getMyTrips(user!.accountId),
+const { data: trips, isLoading, isError } = useQuery({
+    queryKey: ['my-trips'],
+    queryFn: () => getMyTrips(),
     enabled: !!user,
-  })
+})
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Supprimer ce trajet ?')) return

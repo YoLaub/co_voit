@@ -60,36 +60,30 @@ interface ReservationRowProps {
 
 function ReservationRow({ reservation, onCancel }: ReservationRowProps) {
   const navigate = useNavigate()
-  const { route, status } = reservation
-
-  const dt = new Date(route.tripDatetime)
-  const date = dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
-  const time = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-4">
       <button
         type="button"
-        onClick={() => navigate(`/trips/${route.id}`)}
+        onClick={() => navigate(`/trips/${reservation.routeId}`)}
         className="w-full text-left mb-3"
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-semibold text-[#1A365D]">{route.startingAddress.cityName}</span>
+          <span className="font-semibold text-[#1A365D]">{reservation.departureCity}</span>
           <span className="text-gray-400">→</span>
-          <span className="font-semibold text-[#1A365D]">{route.arrivalAddress.cityName}</span>
+          <span className="font-semibold text-[#1A365D]">{reservation.arrivalCity}</span>
         </div>
         <div className="flex items-center gap-3 text-sm text-gray-500">
-          <span>{date}</span>
-          <span>{time}</span>
-          <span className="text-gray-400">· {route.driverName}</span>
+          <span>{reservation.tripDate}</span>
+          <span className="text-gray-400">· {reservation.driverName}</span>
         </div>
       </button>
 
       <div className="flex items-center justify-between">
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[status]}`}>
-          {STATUS_LABELS[status]}
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_STYLES[reservation.status]}`}>
+          {STATUS_LABELS[reservation.status]}
         </span>
-        {status !== 'cancelled' && (
+        {reservation.status !== 'cancelled' && (
           <button
             type="button"
             onClick={() => onCancel(reservation)}
@@ -116,7 +110,7 @@ export default function MyReservations() {
   const mutation = useMutation({
     mutationFn: (tripId: number) => cancelReservation(tripId),
     onSuccess: () => {
-      const id = toCancel?.id ?? null
+      const id = toCancel?.routeId ?? null
       setToCancel(null)
       setSuccessId(id)
       queryClient.invalidateQueries({ queryKey: ['my-reservations'] })
@@ -125,8 +119,8 @@ export default function MyReservations() {
   })
 
   const handleConfirmCancel = () => {
-    if (toCancel) mutation.mutate(toCancel.route.id)
-  }
+    if (toCancel) mutation.mutate(toCancel.routeId)
+}
 
   return (
     <div className=" bg-[#F3F4F6] py-8 px-4">
@@ -159,7 +153,7 @@ export default function MyReservations() {
         {reservations && reservations.length > 0 && (
           <div className="space-y-3">
             {reservations.map((r) => (
-              <ReservationRow key={r.id} reservation={r} onCancel={setToCancel} />
+              <ReservationRow key={r.routeId} reservation={r} onCancel={setToCancel} />
             ))}
           </div>
         )}
