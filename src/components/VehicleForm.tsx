@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { getBrands, getModelsByBrand, createCar, updateCar } from '../api/carsApi'
@@ -7,16 +7,15 @@ import type { VehicleResponse } from '../api/carsApi'
 const REGISTRATION_REGEX = /^[A-Z]{2}-\d{3}-[A-Z]{2}$/
 
 interface VehicleFormProps {
-  vehicle?: VehicleResponse
+  vehicle?: VehicleResponse, // Permet de différencier les données utilisées pour l'affichage (VehicleResponse) et celles utilisées pour le formulaire (VehicleRequest) 
 }
 
 export default function VehicleForm({ vehicle }: VehicleFormProps) {
   const navigate = useNavigate()
   const isEdit = !!vehicle
 
-  const [brandId, setBrandId] = useState<number | null>(null)
-  const [brand, setBrand] = useState(vehicle?.brand ?? '')
-  const [model, setModel] = useState(vehicle?.model ?? '')
+const [brand, setBrand] = useState(vehicle?.brandName ?? '')
+const [model, setModel] = useState(vehicle?.modelName ?? '')
   const [seats, setSeats] = useState(vehicle?.seats ?? 1)
   const [carregistration, setCarregistration] = useState(vehicle?.carregistration ?? '')
   const [formError, setFormError] = useState('')
@@ -27,13 +26,8 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
     queryFn: getBrands,
   })
 
-  // En mode édition, pré-sélectionner le brandId quand les marques sont chargées
-  useEffect(() => {
-    if (vehicle && brands && !brandId) {
-      const match = brands.find((b) => b.label === vehicle.brand)
-      if (match) setBrandId(match.id)
-    }
-  }, [vehicle, brands, brandId])
+  // Dériver brandId à partir des brands chargées et du nom de marque sélectionné
+  const brandId = brands?.find((b) => b.label === brand)?.id ?? null
 
   const { data: models, isLoading: modelsLoading } = useQuery({
     queryKey: ['models', brandId],
@@ -41,8 +35,11 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
     enabled: !!brandId,
   })
 
+  // Dériver modelId à partir du label sélectionné
+  const modelId = models?.find((m) => m.label === model)?.id ?? null
+
   const mutation = useMutation({
-    mutationFn: (payload: { brand: string; model: string; seats: number; carregistration: string }) =>
+    mutationFn: (payload: { modelId: number; seats: number; carregistration: string }) =>
       isEdit ? updateCar(vehicle.id, payload) : createCar(payload),
     onSuccess: () => {
       setSuccess(true)
@@ -55,7 +52,7 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
 
   const validate = (): string => {
     if (!brand) return 'La marque est requise'
-    if (!model.trim()) return 'Le modèle est requis'
+    if (!model) return 'Le modèle est requis'
     if (!REGISTRATION_REGEX.test(carregistration)) return 'Immatriculation invalide (ex: AB-123-CD)'
     return ''
   }
@@ -65,7 +62,7 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
     const err = validate()
     if (err) { setFormError(err); return }
     setFormError('')
-    mutation.mutate({ brand, model: model.trim(), seats, carregistration })
+    mutation.mutate({ modelId: modelId!, seats, carregistration })
   }
 
   return (
@@ -74,11 +71,9 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
         <select
-          value={brandId ?? ''}
+          value={brand}
           onChange={(e) => {
-            const selected = brands?.find((b) => b.id === Number(e.target.value))
-            setBrandId(selected?.id ?? null)
-            setBrand(selected?.label ?? '')
+            setBrand(e.target.value)
             setModel('')
           }}
           disabled={brandsLoading}
@@ -86,7 +81,7 @@ export default function VehicleForm({ vehicle }: VehicleFormProps) {
         >
           <option value="">— Sélectionner —</option>
           {brands?.map((b) => (
-            <option key={b.id} value={b.id}>{b.label}</option>
+            <option key={b.id} value={b.label}>{b.label}</option>
           ))}
         </select>
       </div>
