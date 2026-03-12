@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { login as loginApi } from '../api/authApi'
 import { getMyProfil } from '../api/profilApi'
 import { useAuthStore } from '../store/authStore'
@@ -14,6 +14,15 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const location = useLocation()
+  const resetSuccess = (location.state as { resetSuccess?: boolean })?.resetSuccess
+
+  useEffect(() => {
+    if (resetSuccess) {
+      window.history.replaceState({}, '')
+    }
+  }, [resetSuccess])
 
   const validate = (): string => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Email invalide'
@@ -76,6 +85,11 @@ export default function Login() {
       
     <div className=" bg-[#F3F4F6] flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow p-8 w-full max-w-md">
+        {resetSuccess && (
+          <p className="bg-green-100 text-green-700 text-sm rounded-lg px-3 py-2 mb-4 text-center">
+            Mot de passe réinitialisé avec succès
+          </p>
+        )}
         <h2 className="text-3xl font-bold text-[#1A365D] mb-6 text-center">Connexion</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -97,6 +111,11 @@ export default function Login() {
               className="w-full border text-gray-500 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D]"
               placeholder="••••••••"
             />
+          </div>
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm text-[#1A365D] hover:underline">
+              Mot de passe oublié ?
+            </Link>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
