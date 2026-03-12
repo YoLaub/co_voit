@@ -26,3 +26,11 @@ export async function register(
   })
   return data
 }
+
+export async function forgotPassword(email: string): Promise<void> {
+  await axios.post(`${API_URL}/forgot-password`, { email })
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await axios.post(`${API_URL}/reset-password`, { token, newPassword })
+}

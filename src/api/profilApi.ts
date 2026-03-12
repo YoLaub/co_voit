@@ -1,12 +1,4 @@
-import axios from 'axios'
-import { useAuthStore } from '../store/authStore'
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'https://covoit-api.john-world.store'
-
-function authHeaders() {
-  const token = useAuthStore.getState().token
-  return { Authorization: `Bearer ${token}` }
-}
+import apiClient from './axiosClient'
 
 export interface ProfilResponse {
   profilId: number
@@ -20,16 +12,12 @@ export interface ProfilResponse {
 }
 
 export async function getProfil(id: number): Promise<ProfilResponse> {
-  const { data } = await axios.get<ProfilResponse>(`${API_URL}/api/persons/${id}`, {
-    headers: authHeaders(),
-  })
+  const { data } = await apiClient.get<ProfilResponse>(`/api/persons/${id}`)
   return data
 }
 
 export async function getMyProfil(): Promise<ProfilResponse> {
-  const { data } = await axios.get<ProfilResponse>(`${API_URL}/api/persons/me`, {
-    headers: authHeaders(),
-  })
+  const { data } = await apiClient.get<ProfilResponse>(`/api/persons/me`)
   return data
 }
 
@@ -37,9 +25,7 @@ export async function updateProfil(
   id: number,
   patch: { firstname?: string; lastname?: string; phone?: string },
 ): Promise<ProfilResponse> {
-  const { data } = await axios.patch<ProfilResponse>(`${API_URL}/api/persons/${id}`, patch, {
-    headers: authHeaders(),
-  })
+  const { data } = await apiClient.patch<ProfilResponse>(`/api/persons/${id}`, patch)
   return data
 }
 
@@ -48,9 +34,5 @@ export async function createProfil(
   lastname: string,
   phone: string,
 ): Promise<void> {
-  await axios.post(
-    `${API_URL}/api/persons`,
-    { firstname, lastname, phone },
-    { headers: authHeaders() },
-  )
+  await apiClient.post(`/api/persons`, { firstname, lastname, phone })
 }

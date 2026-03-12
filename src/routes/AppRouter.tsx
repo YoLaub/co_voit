@@ -12,6 +12,8 @@ import MyReservations from '../pages/MyReservations'
 import Vehicle from '../pages/Vehicle'
 import Profile from '../pages/Profile'
 import EditProfile from '../pages/EditProfile'
+import ForgotPassword from '../pages/ForgotPassword'
+import ResetPassword from '../pages/ResetPassword'
 import AppLayout from '../components/layout/AppLayout'
 
 export default function AppRouter() {
@@ -20,6 +22,8 @@ export default function AppRouter() {
       {/* Routes publiques */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Routes protégées */}
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
