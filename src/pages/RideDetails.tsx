@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getTripById } from '../api/tripsApi'
-import { reserveTrip, getTripPassengers  } from '../api/reservationsApi'
+import { reserveTrip, getTripPassengers } from '../api/reservationsApi'
+import type { PassengerResponse } from '../api/reservationsApi'
 import { useAuthStore } from '../store/authStore'
+import EmailModal from '../components/ui/EmailModal'
 
 interface FieldProps {
   label: string
@@ -23,6 +26,8 @@ export default function RideDetails() {
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
   const queryClient = useQueryClient()
+
+  const [emailTarget, setEmailTarget] = useState<PassengerResponse | null>(null)
 
   const { data: trip, isLoading, isError } = useQuery({
     queryKey: ['trip', id],
@@ -120,7 +125,55 @@ const mutation = useMutation({
           <p className="text-red-500 text-sm mb-3 text-center">{errorMessage}</p>
         )}
 
-        {/* Boutons */}
+        {/* Section passagers (conducteur uniquement) */}
+        {isDriver && (
+          <div className="mb-6">
+            <h2 className="text-base font-bold text-[#1A365D] mb-3">
+              Passagers {passengers && passengers.length > 0 && `(${passengers.length})`}
+            </h2>
+            {(!passengers || passengers.length === 0) ? (
+              <p className="text-sm text-gray-400 text-center py-4">Aucun passager pour le moment</p>
+            ) : (
+              <div className="space-y-2">
+                {passengers.map((p) => (
+                  <div key={p.profilId} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3">
+                    {/* Avatar initiales */}
+                    <div className="w-9 h-9 rounded-full bg-[#1A365D] text-white text-sm font-bold flex items-center justify-center shrink-0">
+                      {p.firstname[0]}{p.lastname[0]}
+                    </div>
+                    {/* Nom */}
+                    <span className="flex-1 text-sm font-medium text-gray-800">
+                      {p.firstname} {p.lastname}
+                    </span>
+                    {/* Téléphone */}
+                    <a
+                      href={`tel:${p.phone}`}
+                      className="w-9 h-9 rounded-full bg-[#1A365D]/10 text-[#1A365D] flex items-center justify-center hover:bg-[#1A365D]/20 transition-colors"
+                      aria-label={`Appeler ${p.firstname}`}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </a>
+                    {/* Email */}
+                    <button
+                      type="button"
+                      onClick={() => setEmailTarget(p)}
+                      className="w-9 h-9 rounded-full bg-[#E97A2B]/10 text-[#E97A2B] flex items-center justify-center hover:bg-[#E97A2B]/20 transition-colors"
+                      aria-label={`Envoyer un email à ${p.firstname}`}
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Boutons (passager uniquement) */}
         <div className="flex gap-3">
           <a
             href={`tel:${trip.driver.phone}`}
@@ -151,6 +204,16 @@ const mutation = useMutation({
             {mutation.isPending ? '...' : mutation.isSuccess ? 'Réservé' : 'Réserver'}
           </button>
         </div>
+
+        {/* Modale email */}
+        {emailTarget && (
+          <EmailModal
+            tripId={Number(id)}
+            recipientProfilId={emailTarget.profilId}
+            recipientName={`${emailTarget.firstname} ${emailTarget.lastname}`}
+            onClose={() => setEmailTarget(null)}
+          />
+        )}
       </div>
     </div>
   )

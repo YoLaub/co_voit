@@ -118,6 +118,16 @@ export async function deleteTrip(id: number): Promise<void> {
   await apiClient.delete(`/api/trips/${id}`)
 }
 
+export interface ContactPassengerRequest {
+  recipientProfilId: number
+  subject: string
+  htmlContent: string
+}
+
+export async function contactPassenger(tripId: number, body: ContactPassengerRequest): Promise<void> {
+  await apiClient.post(`/api/trips/${tripId}/contact`, body)
+}
+
 export async function searchTrips(params: SearchParams): Promise<RouteResponse[]> {
   const query = new URLSearchParams()
   if (params.startingCity) query.set('startingcity', params.startingCity)
