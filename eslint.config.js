@@ -20,4 +20,10 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['e2e/**'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
 ])
