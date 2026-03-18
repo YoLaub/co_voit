@@ -136,7 +136,7 @@ const mutation = useMutation({
             ) : (
               <div className="space-y-2">
                 {passengers.map((p) => (
-                  <div key={p.profilId} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3">
+                  <div key={p.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3">
                     {/* Avatar initiales */}
                     <div className="w-9 h-9 rounded-full bg-[#1A365D] text-white text-sm font-bold flex items-center justify-center shrink-0">
                       {p.firstname[0]}{p.lastname[0]}
@@ -209,7 +209,7 @@ const mutation = useMutation({
         {emailTarget && (
           <EmailModal
             tripId={Number(id)}
-            recipientProfilId={emailTarget.profilId}
+            recipientProfilId={emailTarget.id}
             recipientName={`${emailTarget.firstname} ${emailTarget.lastname}`}
             onClose={() => setEmailTarget(null)}
           />

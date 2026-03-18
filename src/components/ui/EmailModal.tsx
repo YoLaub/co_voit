@@ -22,17 +22,21 @@ export default function EmailModal({ tripId, recipientProfilId, recipientName, o
   const [subject, setSubject] = useState('')
   const editorRef = useRef<HTMLDivElement>(null)
 
-  const mutation = useMutation({
-    mutationFn: () =>
-      contactPassenger(tripId, {
+const mutation = useMutation({
+    mutationFn: () => {
+      console.log('Contact payload:', {
         recipientProfilId,
         subject,
         htmlContent: editorRef.current?.innerHTML ?? '',
-      }),
-    onSuccess: () => {
-      onClose()
+      })
+      return contactPassenger(tripId, {
+        recipientProfilId,
+        subject,
+        htmlContent: editorRef.current?.innerHTML ?? '',
+      })
     },
-  })
+    onSuccess: () => onClose(),
+})
 
   const execCmd = useCallback((cmd: FormatCmd) => {
     document.execCommand(cmd, false)

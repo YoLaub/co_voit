@@ -11,7 +11,7 @@ export interface ReservationResponse {
 }
 
 export interface PassengerResponse {
-  profilId: number
+  id: number
   firstname: string
   lastname: string
   phone: string
