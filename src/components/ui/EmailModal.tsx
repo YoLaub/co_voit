@@ -24,11 +24,6 @@ export default function EmailModal({ tripId, recipientProfilId, recipientName, o
 
 const mutation = useMutation({
     mutationFn: () => {
-      console.log('Contact payload:', {
-        recipientProfilId,
-        subject,
-        htmlContent: editorRef.current?.innerHTML ?? '',
-      })
       return contactPassenger(tripId, {
         recipientProfilId,
         subject,
