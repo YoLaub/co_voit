@@ -30,7 +30,7 @@ export default function Ride() {
     <div className=" bg-[#F3F4F6] py-8 px-4">
       <div className="max-w-2xl mx-auto">
         {/* En-tête */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col items-center justify-between gap-5 mb-6">
           <h1 className="text-2xl font-bold text-[#1A365D]">Les trajets</h1>
           <Link
             to="/create-trip"
