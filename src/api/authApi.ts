@@ -34,3 +34,9 @@ export async function forgotPassword(email: string): Promise<void> {
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await axios.post(`${API_URL}/reset-password`, { token, newPassword })
 }
+
+export async function deleteAccount(token: string, accountId: number): Promise<void> {
+  await axios.delete(`${API_URL}/api/persons/${accountId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
