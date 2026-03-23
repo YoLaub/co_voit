@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import {  useNavigate } from 'react-router-dom'
 import Stepper from '../components/ui/Stepper'
 import AddressInput from '../components/ui/AddressInput'
 import { toAddressRequest } from '../utils/formatAddress'
 import { haversineKm } from '../utils/distance'
 import { createTrip } from '../api/tripsApi'
+import {getMyProfil, type ProfilResponse} from '../api/profilApi';
 import type { AddressSuggestion, AddressRequest } from '../utils/formatAddress'
 
 const STEPS = ['Départ', 'Arrivée', 'Détails', 'Récapitulatif']
@@ -34,6 +35,30 @@ export default function CreateRide() {
     time: '',
     seats: 1,
   })
+
+  const [profil, setProfil] = useState<ProfilResponse | null>(null);
+
+  useEffect(() => {
+    const initProfil = async () => {
+      try {
+        const data = await getMyProfil();
+        setProfil(data);
+        
+        // On vérifie "data" directement, car "profil" (le state) 
+        // ne sera mis à jour qu'au prochain rendu de React !
+        if (!data.hasVehicle) { 
+          navigate('/vehicle');
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération du profil :', err);
+      }
+    };
+
+    // Si on n'a pas encore le profil, on le charge
+    if (!profil) {
+      initProfil();
+    }
+  }, [navigate, profil]);
 
   const distance =
     form.startAddress && form.arrivalAddress
