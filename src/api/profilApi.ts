@@ -11,6 +11,7 @@ export interface ProfilResponse {
   vehicle: null | { id: number; brand: string; model: string; seats: number; carregistration: string }
 }
 
+
 export async function getProfil(id: number): Promise<ProfilResponse> {
   const { data } = await apiClient.get<ProfilResponse>(`/api/persons/${id}`)
   return data
