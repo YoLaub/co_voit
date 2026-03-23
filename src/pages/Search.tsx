@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { searchTrips } from '../api/tripsApi'
 import type { SearchParams } from '../api/tripsApi'
 import RideCard from '../components/ui/RideCard'
+import AddressInput from '../components/ui/AddressInput'
+import type { AddressSuggestion } from '../utils/formatAddress'
 
 function SkeletonCard() {
   return (
@@ -52,27 +54,27 @@ export default function Search() {
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ville de départ
-              </label>
-              <input
-                type="text"
+              <AddressInput
+                label="Ville de départ"
+                placeholder="Ex: Nantes"
                 value={form.startingCity}
-                onChange={(e) => setForm((f) => ({ ...f, startingCity: e.target.value }))}
-                placeholder="Paris"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D]"
+                onChange={(val) => setForm((f) => ({ ...f, startingCity: val }))}
+                onSelect={(s: AddressSuggestion) =>
+                  // On garde uniquement le nom de la ville de la suggestion
+                  setForm((f) => ({ ...f, startingCity: s.city || s.label }))
+                }
               />
+
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ville d'arrivée
-              </label>
-              <input
-                type="text"
+              <AddressInput
+                label="Ville d'arrivée"
+                placeholder="Ex: Lyon"
                 value={form.arrivalCity}
-                onChange={(e) => setForm((f) => ({ ...f, arrivalCity: e.target.value }))}
-                placeholder="Lyon"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1A365D]"
+                onChange={(val) => setForm((f) => ({ ...f, arrivalCity: val }))}
+                onSelect={(s: AddressSuggestion) => 
+                  setForm((f) => ({ ...f, arrivalCity: s.city || s.label }))
+                }
               />
             </div>
           </div>

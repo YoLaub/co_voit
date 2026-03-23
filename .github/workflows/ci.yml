@@ -1,13 +1,22 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [production]
+    branches: [main, production]
+
+# Permissions nécessaires pour le merge automatique et la création de PR
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
+  # ─────────────────────────────────────────
+  # JOB 1 — Intégration continue
+  # ─────────────────────────────────────────
   ci:
+    name: CI (Lint · Build · Test)
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +27,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -28,3 +38,82 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+  # ─────────────────────────────────────────
+  # JOB 2 — Merge automatique main → production
+  # Déclenché uniquement sur push sur main (pas sur les PRs)
+  # ─────────────────────────────────────────
+  auto-merge:
+    name: Auto-merge main → production
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Utilise un PAT pour pouvoir push sur une branche protégée.
+          # Créez un token sur https://github.com/settings/tokens (scope: repo)
+          # puis ajoutez-le dans Settings → Secrets → Actions sous le nom PAT_TOKEN.
+          # Si production n'est pas protégée, remplacez PAT_TOKEN par GITHUB_TOKEN.
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into production
+        id: merge
+        run: |
+          git fetch origin production
+          git checkout production
+          git merge --no-ff origin/main -m "chore: auto-merge main into production [skip ci]"
+          git push origin production
+
+  # ─────────────────────────────────────────
+  # JOB 3 — Déploiement sur VPS via SSH
+  # Déclenché uniquement après un merge réussi sur production
+  # ─────────────────────────────────────────
+  deploy:
+    name: Deploy via Coolify Webhook
+    needs: auto-merge
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Trigger Coolify redeploy
+        run: |
+          curl --request GET "${{ secrets.COOLIFY_WEBHOOK_URL }}"
+
+  # ─────────────────────────────────────────
+  # JOB 4 — Fallback : PR manuelle si le merge échoue
+  # ─────────────────────────────────────────
+  open-fallback-pr:
+    name: Open fallback PR on merge failure
+    needs: auto-merge
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Create fallback PR via GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh pr create \
+            --base production \
+            --head main \
+            --title "⚠️ [Action requise] Merge automatique échoué — main → production" \
+            --body "Le merge automatique de \`main\` vers \`production\` a échoué (conflit ou branche protégée).
+
+          **Commit concerné :** ${{ github.sha }}
+          **Auteur :** ${{ github.actor }}
+          **Run GitHub Actions :** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Veuillez résoudre les conflits et merger cette PR manuellement." \
+          || echo "ℹ️ Une PR existe déjà entre main et production."

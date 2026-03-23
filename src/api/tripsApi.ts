@@ -136,3 +136,4 @@ export async function searchTrips(params: SearchParams): Promise<RouteResponse[]
   const { data } = await apiClient.get<RouteResponse[]>(`/api/trips?${query}`)
   return data
 }
+

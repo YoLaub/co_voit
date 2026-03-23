@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { Link, useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMyProfil } from '../api/profilApi'
+import { deleteAccount } from '../api/authApi'
 import { useAuthStore } from '../store/authStore'
 import ProfileCard from '../components/ProfileCard'
 
@@ -28,8 +29,11 @@ function QuickLink({ to, label, icon }: QuickLinkProps) {
 }
 
 export default function Profile() {
-  const user = useAuthStore((s) => s.user)
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token)
   const logout = useAuthStore((s) => s.logout)
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: profil, isLoading, isError } = useQuery({
     queryKey: ['profil', 'me'],
@@ -51,6 +55,36 @@ export default function Profile() {
         <p className="text-red-500">Impossible de charger le profil.</p>
       </div>
     )
+  }
+
+  const handleDelete = async () => {
+
+
+    // 1. Vérification de sécurité (éviter d'appeler l'API si les données sont absentes)
+    if (!token || !user?.accountId) {
+      alert("Erreur d'authentification, impossible de supprimer le compte.");
+      return;
+    }
+
+    // 2. Confirmation de l'utilisateur
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
+      return;
+    }
+
+    try {
+      await deleteAccount(token, user.accountId)
+      // 4. Invalidation du cache (optionnel si tu déconnectes l'utilisateur juste après)
+      await queryClient.invalidateQueries({ queryKey: ['my-trips', user.accountId] });
+
+      alert('Votre compte a été supprimé avec succès.');
+
+      logout();
+      navigate('/login');
+
+
+    } catch {
+      alert('Erreur lors de la suppression')
+    }
   }
 
   return (
@@ -75,6 +109,14 @@ export default function Profile() {
           <QuickLink to="/my-reservations" label="Mes réservations" icon="🎫" />
           <QuickLink to="/vehicle" label="Mon véhicule" icon="🔧" />
         </div>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="w-full border border-gray-300 text-gray-500 font-medium py-3 rounded-xl hover:bg-gray-100 transition-colors mt-4"
+        >
+          Supprimer mon compte
+        </button>
 
         {/* Déconnexion */}
         <button
