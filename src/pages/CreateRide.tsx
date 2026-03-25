@@ -90,6 +90,8 @@ export default function CreateRide() {
     setCurrentStep((s) => s - 1)
   }
 
+  const [success, setSuccess] = useState(false)
+
   const handleSubmit = async () => {
     if (!form.startAddress || !form.arrivalAddress || !distance) return
     setLoading(true)
@@ -103,10 +105,11 @@ export default function CreateRide() {
         startingAddress: form.startAddress,
         arrivalAddress: form.arrivalAddress,
       })
-      navigate('/my-trips')
+      setLoading(false)
+      setSuccess(true)
+      setTimeout(() => navigate('/my-trips'), 2000)
     } catch {
       setError('Erreur lors de la publication, réessayez')
-    } finally {
       setLoading(false)
     }
   }
@@ -124,6 +127,7 @@ export default function CreateRide() {
           onNext={handleNext}
           onPrev={handlePrev}
           onSubmit={handleSubmit}
+          submitDisabled={loading || success}
         >
           {/* Étape 1 — Départ */}
           {currentStep === 0 && (
@@ -225,7 +229,15 @@ export default function CreateRide() {
                 </div>
               </div>
               {loading && (
-                <p className="text-center text-sm text-gray-500">Publication en cours...</p>
+                <p className="text-center text-sm text-gray-500 animate-pulse">Publication en cours...</p>
+              )}
+              {success && (
+                <div className="flex items-center gap-2 justify-center bg-green-50 text-green-700 font-medium rounded-lg px-4 py-3">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Votre trajet est enregistré
+                </div>
               )}
             </div>
           )}
