@@ -43,9 +43,11 @@ export default function CreateRide() {
       try {
         const data = await getMyProfil();
         setProfil(data);
-        
-        if (!data.hasVehicle) { 
+
+        if (!data.hasVehicle) {
           navigate('/vehicle');
+        } else if (data.vehicle) {
+          setForm((f) => ({ ...f, seats: data.vehicle!.seats }));
         }
       } catch (err) {
         console.error('Erreur lors de la récupération du profil :', err);
