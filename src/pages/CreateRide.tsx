@@ -44,8 +44,6 @@ export default function CreateRide() {
         const data = await getMyProfil();
         setProfil(data);
         
-        // On vérifie "data" directement, car "profil" (le state) 
-        // ne sera mis à jour qu'au prochain rendu de React !
         if (!data.hasVehicle) { 
           navigate('/vehicle');
         }

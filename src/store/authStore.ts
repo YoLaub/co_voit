@@ -8,6 +8,15 @@ export interface AuthUser {
   hasCompletedProfile: boolean
 }
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
 interface AuthState {
   token: string | null
   user: AuthUser | null
@@ -27,7 +36,14 @@ export const useAuthStore = create<AuthState>()(
         set({ token: null, user: null })
         window.location.href = '/login'
       },
-      isAuthenticated: () => !!get().token,
+      isAuthenticated: () => {
+        const token = get().token
+        if (!token || isTokenExpired(token)) {
+          if (token) set({ token: null, user: null })
+          return false
+        }
+        return true
+      },
       updateUser: (patch) => {
         const current = get().user
         if (current) set({ user: { ...current, ...patch } })
