@@ -85,17 +85,15 @@ export default function RideDetails() {
     <div className=" bg-[#F3F4F6] py-8 px-4">
       <div className="max-w-md mx-auto">
         {/* En-tête */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between gap-10 mb-6">
           <h1 className="text-xl font-bold text-[#1A365D] flex-1 text-center">Détails trajet</h1>
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0"
+            className="w-10 h-10  rounded-full bg-[#1A365D]/20 border border-gray-200 flex items-center justify-center hover:bg-[#1A365D]/30 transition-colors shrink-0"
             aria-label="Retour"
           >
-            <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
+          <p className=' text-3xl text-[#1A365D] mb-1'>←</p>
           </button>
         </div>
 
@@ -137,13 +135,13 @@ export default function RideDetails() {
             ) : (
               <div className="space-y-2">
                 {passengers.map((p) => (
-                  <div key={p.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3">
+                  <div key={p.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3 overflow-hidden">
                     {/* Avatar initiales */}
                     <div className="w-9 h-9 rounded-full bg-[#1A365D] text-white text-sm font-bold flex items-center justify-center shrink-0">
                       {p.firstname[0]}{p.lastname[0]}
                     </div>
                     {/* Nom */}
-                    <span className="flex-1 text-sm font-medium text-gray-800">
+                    <span className="flex-1 text-sm font-medium text-gray-800 truncate">
                       {p.firstname} {p.lastname}
                     </span>
                     {/* Téléphone */}
@@ -160,12 +158,14 @@ export default function RideDetails() {
                     <button
                       type="button"
                       onClick={() => setEmailTarget(p)}
-                      className="w-9 h-9 rounded-full bg-[#E97A2B]/10 text-[#E97A2B] flex items-center justify-center hover:bg-[#E97A2B]/20 transition-colors"
+                      className=" rounded-full p-5 bg-[#E97A2B]/10 flex items-center justify-center hover:bg-[#E97A2B]/20 transition-colors shrink-0 text-[#1A365D]"
                       aria-label={`Envoyer un email à ${p.firstname}`}
                     >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="#1A365D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                       </svg>
+
                     </button>
                   </div>
                 ))}

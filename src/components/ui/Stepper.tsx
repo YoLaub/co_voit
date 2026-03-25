@@ -6,6 +6,7 @@ interface StepperProps {
   onNext: () => void
   onPrev: () => void
   onSubmit: () => void
+  submitDisabled?: boolean
   children: ReactNode
 }
 
@@ -15,6 +16,7 @@ export default function Stepper({
   onNext,
   onPrev,
   onSubmit,
+  submitDisabled,
   children,
 }: StepperProps) {
   const isFirst = currentStep === 0
@@ -92,7 +94,8 @@ export default function Stepper({
           <button
             type="button"
             onClick={onSubmit}
-            className="px-6 py-2 rounded-lg bg-[#E97A2B] text-white font-semibold hover:bg-[#d06b22] transition-colors"
+            disabled={submitDisabled}
+            className="px-6 py-2 rounded-lg bg-[#E97A2B] text-white font-semibold hover:bg-[#d06b22] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Valider
           </button>
