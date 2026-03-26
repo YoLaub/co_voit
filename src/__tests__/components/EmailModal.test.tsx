@@ -64,17 +64,20 @@ describe('EmailModal', () => {
     })
   })
 
-  it('calls onClose after successful send', async () => {
+  it('shows success toast then calls onClose after delay', async () => {
     renderModal()
     const user = userEvent.setup()
     await user.type(screen.getByLabelText(/objet/i), 'Sujet')
     await user.click(screen.getByRole('button', { name: /envoyer/i }))
     await waitFor(() => {
-      expect(defaultProps.onClose).toHaveBeenCalled()
+      expect(screen.getByText(/email envoyé avec succès/i)).toBeInTheDocument()
     })
+    await waitFor(() => {
+      expect(defaultProps.onClose).toHaveBeenCalled()
+    }, { timeout: 3000 })
   })
 
-  it('shows error message on API failure', async () => {
+  it('shows error message on API failure',{ timeout: 3000 }, async () => {
     server.use(
       http.post('*/api/trips/:id/contact', () => {
         return HttpResponse.json(
@@ -91,7 +94,7 @@ describe('EmailModal', () => {
       expect(screen.getByText(/erreur/i)).toBeInTheDocument()
     })
     expect(defaultProps.onClose).not.toHaveBeenCalled()
-  })
+  }, { timeout: 3000 });
 
   it('closes modal when cancel button is clicked', async () => {
     renderModal()
