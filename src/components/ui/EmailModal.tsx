@@ -20,6 +20,7 @@ const toolbarButtons: { cmd: FormatCmd; label: string; icon: string }[] = [
 
 export default function EmailModal({ tripId, recipientProfilId, recipientName, onClose }: EmailModalProps) {
   const [subject, setSubject] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
   const editorRef = useRef<HTMLDivElement>(null)
 
 const mutation = useMutation({
@@ -30,7 +31,10 @@ const mutation = useMutation({
         htmlContent: editorRef.current?.innerHTML ?? '',
       })
     },
-    onSuccess: () => onClose(),
+    onSuccess: () => {
+      setShowSuccess(true)
+      setTimeout(() => onClose(), 1500)
+    },
 })
 
   const execCmd = useCallback((cmd: FormatCmd) => {
@@ -42,6 +46,16 @@ const mutation = useMutation({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      {/* Toast succès */}
+      {showSuccess && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-60 bg-green-500 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-[fadeInDown_0.3s_ease-out]">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="text-sm font-medium">Email envoyé avec succès !</span>
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
